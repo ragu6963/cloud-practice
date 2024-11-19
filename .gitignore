@@ -335,3 +335,5 @@ fabric.properties
 
 
 .idea
+.env
+.env.*
