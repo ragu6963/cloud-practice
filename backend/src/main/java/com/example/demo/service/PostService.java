@@ -26,14 +26,7 @@ public class PostService {
 
 		postRepository.save(post);
 
-		return PostResponseDTO.builder()
-				.id(post.getId())
-				.title(post.getTitle())
-				.content(post.getContent())
-				.imageUrl(post.getImageUrl())
-				.createdAt(post.getCreatedAt())
-				.updatedAt(post.getUpdatedAt())
-				.build();
+		return toResponseDTO(post);
 	}
 
 	@Transactional(readOnly = true)
@@ -55,14 +48,7 @@ public class PostService {
 		Post post = postRepository.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("Post not found with id: " + id));
 
-		return PostResponseDTO.builder()
-				.id(post.getId())
-				.title(post.getTitle())
-				.content(post.getContent())
-				.imageUrl(post.getImageUrl())
-				.createdAt(post.getCreatedAt())
-				.updatedAt(post.getUpdatedAt())
-				.build();
+		return toResponseDTO(post);
 	}
 
 	@Transactional
@@ -74,14 +60,7 @@ public class PostService {
 		post.setContent(requestDto.getContent());
 		post.setImageUrl(requestDto.getImageUrl());
 
-		return PostResponseDTO.builder()
-				.id(post.getId())
-				.title(post.getTitle())
-				.content(post.getContent())
-				.imageUrl(post.getImageUrl())
-				.createdAt(post.getCreatedAt())
-				.updatedAt(post.getUpdatedAt())
-				.build();
+		return toResponseDTO(post);
 	}
 
 	@Transactional
@@ -90,5 +69,17 @@ public class PostService {
 			throw new IllegalArgumentException("Post not found with id: " + id);
 		}
 		postRepository.deleteById(id);
+	}
+
+	private PostResponseDTO toResponseDTO(Post post) {
+
+		return PostResponseDTO.builder()
+				.id(post.getId())
+				.title(post.getTitle())
+				.content(post.getContent())
+				.imageUrl(post.getImageUrl())
+				.createdAt(post.getCreatedAt())
+				.updatedAt(post.getUpdatedAt())
+				.build();
 	}
 }
