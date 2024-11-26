@@ -1,10 +1,19 @@
 import React from "react";
 import styles from "./PostForm.module.css";
 
-export default function PostForm({ handleSubmit, handleChange, formData }) {
+export default function PostForm({
+  handleSubmit,
+  handleChange,
+  handleFileChange,
+  formData,
+}) {
   return (
     <div className={styles.postFormContainer}>
-      <form onSubmit={handleSubmit} className={styles.form}>
+      <form
+        onSubmit={handleSubmit}
+        className={styles.form}
+        encType="multipart/form-data"
+      >
         <div>
           <input
             type="text"
@@ -25,6 +34,17 @@ export default function PostForm({ handleSubmit, handleChange, formData }) {
             placeholder="content 입력"
             className={styles.textarea}
           />
+        </div>
+        <div>
+          <div>
+            <input
+              type="file"
+              name="file"
+              id="file"
+              onChange={handleFileChange}
+              accept="image/*"
+            />
+          </div>
         </div>
         <button type="submit" className={styles.button}>
           Post 생성

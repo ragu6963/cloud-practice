@@ -25,6 +25,14 @@ export default function HomePage() {
     });
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFormData((prevData) => ({
+      ...prevData,
+      imageUrl: file,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     await postsApi.postPost(formData);
@@ -47,6 +55,7 @@ export default function HomePage() {
       <PostForm
         handleSubmit={handleSubmit}
         handleChange={handleChange}
+        handleFileChange={handleFileChange}
         formData={formData}
       ></PostForm>
       {posts.map((post) => {
