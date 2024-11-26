@@ -6,15 +6,15 @@ const postsApi = {
     return resposne.data;
   },
   getPosts: async () => {
-    const resposne = await api.get("posts");
+    const resposne = await api.get("api/posts");
     return resposne.data;
   },
   getPost: async (postId) => {
-    const resposne = await api.get(`posts/${postId}`);
+    const resposne = await api.get(`api/posts/${postId}`);
     return resposne.data;
   },
   postPost: async (data) => {
-    const resposne = await api.post(`posts`, data);
+    const resposne = await api.post(`api/posts`, data);
     return resposne.data;
   },
 };

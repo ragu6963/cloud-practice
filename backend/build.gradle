@@ -18,12 +18,22 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.xerial:sqlite-jdbc:3.41.2.1' // sqlite jdbc
-	implementation 'org.hibernate.orm:hibernate-community-dialects' // diarect
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// spring boot
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	implementation 'mysql:mysql-connector-java:8.0.33' // 최신 버전 확인
+
+	// lombok
+	compileOnly 'org.projectlombok:lombok:1.18.36'
+	annotationProcessor 'org.projectlombok:lombok:1.18.36'
+	testCompileOnly 'org.projectlombok:lombok:1.18.36'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+
+	// mysql
+	implementation 'mysql:mysql-connector-java:8.0.33'
+
+	// jpa
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
 }
 tasks.named('test') {
 	useJUnitPlatform()

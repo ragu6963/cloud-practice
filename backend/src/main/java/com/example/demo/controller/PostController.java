@@ -1,40 +1,43 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.Post;
+import lombok.RequiredArgsConstructor;
+
+import com.example.demo.dto.*;
 import com.example.demo.service.PostService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/api/posts")
+@RequiredArgsConstructor
 public class PostController {
-    @Autowired
-    private PostService postService;
+    private final PostService postService;
+
+    @PostMapping
+    public ResponseEntity<PostResponseDTO> createPost(@RequestBody PostRequestDTO requestDto) {
+        return ResponseEntity.ok(postService.createPost(requestDto));
+    }
 
     @GetMapping
-    public List<Post> getAllPosts() {
-        return postService.getAllPosts();
+    public ResponseEntity<List<PostResponseDTO>> getAllPosts() {
+        return ResponseEntity.ok(postService.getAllPosts());
     }
 
     @GetMapping("/{id}")
-    public Post getPostById(@PathVariable Long id) {
-        return postService.getPostById(id);
-    }
-
-    @PostMapping
-    public Post createPost(@RequestBody Post post) {
-        return postService.createPost(post);
+    public ResponseEntity<PostResponseDTO> getPostById(@PathVariable Long id) {
+        return ResponseEntity.ok(postService.getPostById(id));
     }
 
     @PutMapping("/{id}")
-    public Post updatePost(@PathVariable Long id, @RequestBody Post updatedPost) {
-        return postService.updatePost(id, updatedPost);
+    public ResponseEntity<PostResponseDTO> updatePost(@PathVariable Long id, @RequestBody PostRequestDTO requestDto) {
+        return ResponseEntity.ok(postService.updatePost(id, requestDto));
     }
 
     @DeleteMapping("/{id}")
-    public void deletePost(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
         postService.deletePost(id);
+        return ResponseEntity.noContent().build();
     }
 }
