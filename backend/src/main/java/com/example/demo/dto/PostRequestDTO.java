@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class PostRequestDTO {
-    private String title;
-    private String content;
-    private String imageUrl;
+	private String title;
+	private String content;
+	private String imageUrl;
 }

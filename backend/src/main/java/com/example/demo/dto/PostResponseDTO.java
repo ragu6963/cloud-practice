@@ -1,6 +1,7 @@
 package com.example.demo.dto;
 
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Getter
@@ -9,10 +10,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class PostResponseDTO {
-    private Long id;
-    private String title;
-    private String content;
-    private String imageUrl;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+	private Long id;
+	private String title;
+	private String content;
+	private String imageUrl;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 }
