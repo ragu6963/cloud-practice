@@ -5,6 +5,7 @@ import com.example.demo.dto.PostResponseDTO;
 import com.example.demo.entity.Post;
 import com.example.demo.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,10 +23,12 @@ import java.util.stream.Collectors;
 public class PostService {
 
 	private final PostRepository postRepository;
-	private final String BUCKET_NAME = "nodecrew-demo-bucket"; // S3 버킷 이름
 	private final S3Client s3Client;
-	private final String s3Region;
 
+	@Value("${BUCKET_NAME}")
+	String BUCKET_NAME;
+	@Value("${REGION}")
+	String REGION;
 
 	@Transactional
 	public PostResponseDTO createPost(PostRequestDTO requestDto) {
@@ -66,7 +69,7 @@ public class PostService {
 			throw new RuntimeException("Failed to upload file", e);
 		}
 
-		return "https://" + BUCKET_NAME + ".s3." + s3Region + ".amazonaws.com/" + fileName;
+		return "https://" + BUCKET_NAME + ".s3." + REGION + ".amazonaws.com/" + fileName;
 	}
 
 	private String getFileName(MultipartFile file, String dirName) {
