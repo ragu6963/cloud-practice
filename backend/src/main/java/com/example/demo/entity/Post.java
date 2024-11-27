@@ -31,6 +31,9 @@ public class Post {
 	@Column(nullable = true)
 	private String imageUrl;
 
+	@Column(nullable = true)
+	private String fileName;
+
 	@CreatedDate
 	@Column(updatable = false)
 	private LocalDateTime createdAt;

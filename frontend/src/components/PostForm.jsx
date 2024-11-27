@@ -3,7 +3,7 @@ import styles from "./PostForm.module.css";
 
 export default function PostForm({
   handleSubmit,
-  handleChange,
+  handleFormChange,
   handleFileChange,
   formData,
 }) {
@@ -20,7 +20,7 @@ export default function PostForm({
             id="title"
             name="title"
             value={formData.title}
-            onChange={handleChange}
+            onChange={handleFormChange}
             placeholder="title 입력"
             className={styles.input}
           />
@@ -30,7 +30,7 @@ export default function PostForm({
             id="content"
             name="content"
             value={formData.content}
-            onChange={handleChange}
+            onChange={handleFormChange}
             placeholder="content 입력"
             className={styles.textarea}
           />

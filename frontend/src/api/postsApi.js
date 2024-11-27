@@ -10,7 +10,11 @@ const postsApi = {
     return resposne.data;
   },
   getPost: async (postId) => {
-    const resposne = await api.get(`api/posts/${postId}`);
+    const resposne = await api.get(`api/posts/${postId}`, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return resposne.data;
   },
   postPost: async (data) => {

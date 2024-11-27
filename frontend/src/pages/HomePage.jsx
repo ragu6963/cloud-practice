@@ -10,6 +10,7 @@ export default function HomePage() {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
+    file: null,
   });
 
   async function fetchPosts() {
@@ -17,7 +18,7 @@ export default function HomePage() {
     setPosts(response.reverse());
   }
 
-  const handleChange = (e) => {
+  const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -29,14 +30,20 @@ export default function HomePage() {
     const file = e.target.files[0];
     setFormData((prevData) => ({
       ...prevData,
-      imageUrl: file,
+      file: file,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await postsApi.postPost(formData);
-    setFormData({ title: "", content: "" });
+    const uploadData = new FormData();
+    uploadData.append("title", formData.title);
+    uploadData.append("content", formData.content);
+    if (formData.file) uploadData.append("file", formData.file);
+
+    await postsApi.postPost(uploadData);
+
+    setFormData({ title: "", content: "", file: null });
     fetchPosts();
   };
 
@@ -54,7 +61,7 @@ export default function HomePage() {
       <h1>{message}</h1>
       <PostForm
         handleSubmit={handleSubmit}
-        handleChange={handleChange}
+        handleFormChange={handleFormChange}
         handleFileChange={handleFileChange}
         formData={formData}
       ></PostForm>
