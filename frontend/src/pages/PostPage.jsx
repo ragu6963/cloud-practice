@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import postsApi from "../api/postsApi";
 import Post from "../components/Post";
+
 export default function PostPage() {
   const { postId } = useParams();
   const [post, setPost] = useState({});
@@ -11,13 +12,14 @@ export default function PostPage() {
     async function fetchPost() {
       const response = await postsApi.getPost(postId);
       setPost(response);
+      console.log(response);
     }
     fetchPost();
   }, []);
 
   return (
     <div>
-      <Post id={post.id} title={post.title} content={post.content}></Post>
+      <Post key={post.id} post={post} isDetail={true}></Post>
     </div>
   );
 }

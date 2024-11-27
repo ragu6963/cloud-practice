@@ -10,7 +10,7 @@ export default function HomePage() {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
-    file: null,
+    file: "",
   });
 
   async function fetchPosts() {
@@ -41,9 +41,10 @@ export default function HomePage() {
     uploadData.append("content", formData.content);
     if (formData.file) uploadData.append("file", formData.file);
 
-    await postsApi.postPost(uploadData);
+    const response = await postsApi.postPost(uploadData);
+    console.log(response);
 
-    setFormData({ title: "", content: "", file: null });
+    setFormData({ title: "", content: "", file: "" });
     fetchPosts();
   };
 
@@ -66,7 +67,7 @@ export default function HomePage() {
         formData={formData}
       ></PostForm>
       {posts.map((post) => {
-        return <Post key={post.id} id={post.id} title={post.title}></Post>;
+        return <Post key={post.id} post={post} isDetail={false}></Post>;
       })}
     </div>
   );
