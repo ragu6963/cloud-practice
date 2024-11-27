@@ -2,8 +2,8 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -34,10 +34,10 @@ public class Post {
 	@Column(nullable = true)
 	private String fileName;
 
-	@CreatedDate
+	@CreationTimestamp
 	@Column(updatable = false)
 	private LocalDateTime createdAt;
 
-	@LastModifiedDate
+	@UpdateTimestamp
 	private LocalDateTime updatedAt;
 }

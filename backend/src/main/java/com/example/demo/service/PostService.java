@@ -30,28 +30,28 @@ public class PostService {
 	@Transactional
 	public PostResponseDTO createPost(PostRequestDTO requestDto) {
 		// S3에 이미지 업로드
-		String imageUrl = uploadToS3(requestDto.getFile(), "posts");
+		String fileName = getFileName(requestDto.getFile(), "posts");
+		String imageUrl = uploadToS3(requestDto.getFile(), fileName);
 
-		// 게시글 생성
 		Post post = new Post();
 		post.setTitle(requestDto.getTitle());
 		post.setContent(requestDto.getContent());
 		post.setImageUrl(imageUrl);
+		post.setFileName(requestDto.getFile().getOriginalFilename());
 
 		Post savedPost = postRepository.save(post);
 
-		// Response DTO 생성
 		PostResponseDTO responseDto = new PostResponseDTO();
 		responseDto.setId(savedPost.getId());
 		responseDto.setTitle(savedPost.getTitle());
 		responseDto.setContent(savedPost.getContent());
 		responseDto.setImageUrl(savedPost.getImageUrl());
+		responseDto.setFileName(savedPost.getFileName());
 
 		return responseDto;
 	}
 
-	private String uploadToS3(MultipartFile file, String dirName) {
-		String fileName = dirName + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+	private String uploadToS3(MultipartFile file, String fileName) {
 
 		try {
 			s3Client.putObject(
@@ -67,6 +67,11 @@ public class PostService {
 		}
 
 		return "https://" + BUCKET_NAME + ".s3." + s3Region + ".amazonaws.com/" + fileName;
+	}
+
+	private String getFileName(MultipartFile file, String dirName) {
+		String fileName = dirName + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+		return fileName;
 	}
 
 	@Transactional(readOnly = true)
@@ -111,6 +116,8 @@ public class PostService {
 				.content(post.getContent())
 				.createdAt(post.getCreatedAt())
 				.updatedAt(post.getUpdatedAt())
+				.fileName(post.getFileName())
+				.imageUrl(post.getImageUrl())
 				.build();
 
 	}
