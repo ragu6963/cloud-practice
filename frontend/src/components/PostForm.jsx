@@ -10,21 +10,21 @@ const INITIAL_FORM_DATA = {
 };
 
 export default function PostForm({ fetchPosts }) {
-  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+  const [inputData, setInputData] = useState(INITIAL_FORM_DATA);
   const fileInputRef = useRef(null);
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setInputData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    setFormData((prev) => ({ ...prev, file }));
+    setInputData((prev) => ({ ...prev, file }));
   };
 
   const resetForm = () => {
-    setFormData(INITIAL_FORM_DATA);
+    setInputData(INITIAL_FORM_DATA);
     if (fileInputRef.current) fileInputRef.current.value = null;
   };
 
@@ -32,9 +32,9 @@ export default function PostForm({ fetchPosts }) {
     e.preventDefault();
 
     const uploadData = new FormData();
-    uploadData.append("title", formData.title);
-    uploadData.append("content", formData.content);
-    if (formData.file) uploadData.append("file", formData.file);
+    uploadData.append("title", inputData.title);
+    uploadData.append("content", inputData.content);
+    if (inputData.file) uploadData.append("file", inputData.file);
 
     try {
       await postsApi.postPost(uploadData);
@@ -47,44 +47,32 @@ export default function PostForm({ fetchPosts }) {
 
   return (
     <div className={styles.postFormContainer}>
-      <form
-        onSubmit={handleSubmit}
-        className={styles.form}
-        encType="multipart/form-data"
-      >
-        <div>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleFormChange}
-            placeholder="title 입력"
-            className={styles.input}
-          />
-        </div>
-        <div>
-          <textarea
-            id="content"
-            name="content"
-            value={formData.content}
-            onChange={handleFormChange}
-            placeholder="content 입력"
-            className={styles.textarea}
-          />
-        </div>
-        <div>
-          <div>
-            <input
-              type="file"
-              name="file"
-              id="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/*"
-            />
-          </div>
-        </div>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          value={inputData.title}
+          onChange={handleFormChange}
+          placeholder="title 입력"
+          className={styles.input}
+        />
+        <textarea
+          id="content"
+          name="content"
+          value={inputData.content}
+          onChange={handleFormChange}
+          placeholder="content 입력"
+          className={styles.textarea}
+        />
+        <input
+          type="file"
+          name="file"
+          id="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          accept="image/*"
+        />
         <button type="submit" className={styles.button}>
           Post 생성
         </button>
