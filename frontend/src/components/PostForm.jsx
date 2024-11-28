@@ -11,7 +11,7 @@ const INITIAL_FORM_DATA = {
 
 export default function PostForm({ fetchPosts }) {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
-  const fileInput = useRef(null);
+  const fileInputRef = useRef(null);
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -79,7 +79,7 @@ export default function PostForm({ fetchPosts }) {
               type="file"
               name="file"
               id="file"
-              ref={fileInput}
+              ref={fileInputRef}
               onChange={handleFileChange}
               accept="image/*"
             />
