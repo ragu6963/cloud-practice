@@ -7,52 +7,16 @@ export default function HomePage() {
   const [message, setMessage] = useState("");
   const [posts, setPosts] = useState([]);
 
-  const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    file: "",
-  });
-
   async function fetchPosts() {
     const response = await postsApi.getPosts();
     setPosts(response.reverse());
   }
 
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setFormData((prevData) => ({
-      ...prevData,
-      file: file,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const uploadData = new FormData();
-    uploadData.append("title", formData.title);
-    uploadData.append("content", formData.content);
-    if (formData.file) uploadData.append("file", formData.file);
-
-    const response = await postsApi.postPost(uploadData);
-    console.log(response);
-
-    setFormData({ title: "", content: "", file: "" });
-    fetchPosts();
-  };
-
+  async function fetchMessage() {
+    const response = await postsApi.getMessage();
+    setMessage(response.message);
+  }
   useEffect(() => {
-    async function fetchMessage() {
-      const response = await postsApi.getMessage();
-      setMessage(response.message);
-    }
     fetchMessage();
     fetchPosts();
   }, []);
@@ -60,12 +24,7 @@ export default function HomePage() {
   return (
     <div>
       <h1>{message}</h1>
-      <PostForm
-        handleSubmit={handleSubmit}
-        handleFormChange={handleFormChange}
-        handleFileChange={handleFileChange}
-        formData={formData}
-      ></PostForm>
+      <PostForm fetchPosts={fetchPosts}></PostForm>
       {posts.map((post) => {
         return <Post key={post.id} post={post} isDetail={false}></Post>;
       })}

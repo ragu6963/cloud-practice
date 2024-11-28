@@ -21,6 +21,9 @@ const postsApi = {
     const resposne = await api.post(`api/posts`, data);
     return resposne.data;
   },
+  deletePost: async (postId) => {
+    const resposne = await api.delete(`api/posts/${postId}`);
+  },
 };
 
 export default postsApi;

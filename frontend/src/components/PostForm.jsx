@@ -1,12 +1,50 @@
 import React from "react";
 import styles from "./PostForm.module.css";
+import { useRef, useState } from "react";
+import postsApi from "../api/postsApi";
 
-export default function PostForm({
-  handleSubmit,
-  handleFormChange,
-  handleFileChange,
-  formData,
-}) {
+const INITIAL_FORM_DATA = {
+  title: "",
+  content: "",
+  file: null,
+};
+
+export default function PostForm({ fetchPosts }) {
+  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+  const fileInput = useRef(null);
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFormData((prev) => ({ ...prev, file }));
+  };
+
+  const resetForm = () => {
+    setFormData(INITIAL_FORM_DATA);
+    if (fileInputRef.current) fileInputRef.current.value = null;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const uploadData = new FormData();
+    uploadData.append("title", formData.title);
+    uploadData.append("content", formData.content);
+    if (formData.file) uploadData.append("file", formData.file);
+
+    try {
+      await postsApi.postPost(uploadData);
+      fetchPosts();
+      resetForm();
+    } catch (error) {
+      console.error("ERROR : ", error);
+    }
+  };
+
   return (
     <div className={styles.postFormContainer}>
       <form
@@ -41,6 +79,7 @@ export default function PostForm({
               type="file"
               name="file"
               id="file"
+              ref={fileInput}
               onChange={handleFileChange}
               accept="image/*"
             />
