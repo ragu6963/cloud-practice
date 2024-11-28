@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
@@ -33,34 +34,28 @@ public class PostService {
 	@Transactional
 	public PostResponseDTO createPost(PostRequestDTO requestDto) {
 		// S3에 이미지 업로드
-		String fileName = getFileName(requestDto.getFile(), "posts");
-		String imageUrl = uploadToS3(requestDto.getFile(), fileName);
+		String storedFileName = getFileName(requestDto.getFile());
+		String imageUrl = uploadToS3(requestDto.getFile(), storedFileName);
 
 		Post post = new Post();
 		post.setTitle(requestDto.getTitle());
 		post.setContent(requestDto.getContent());
 		post.setImageUrl(imageUrl);
-		post.setFileName(requestDto.getFile().getOriginalFilename());
+		post.setOriginalFileName(requestDto.getFile().getOriginalFilename());
+		post.setStoredFileName(storedFileName);
 
-		Post savedPost = postRepository.save(post);
+		postRepository.save(post);
 
-		PostResponseDTO responseDto = new PostResponseDTO();
-		responseDto.setId(savedPost.getId());
-		responseDto.setTitle(savedPost.getTitle());
-		responseDto.setContent(savedPost.getContent());
-		responseDto.setImageUrl(savedPost.getImageUrl());
-		responseDto.setFileName(savedPost.getFileName());
-
-		return responseDto;
+		return toResponseDTO(post);
 	}
 
-	private String uploadToS3(MultipartFile file, String fileName) {
+	private String uploadToS3(MultipartFile file, String storedFileName) {
 
 		try {
 			s3Client.putObject(
 					PutObjectRequest.builder()
 							.bucket(BUCKET_NAME)
-							.key(fileName)
+							.key(storedFileName)
 							.contentType(file.getContentType())
 							.build(),
 					RequestBody.fromInputStream(file.getInputStream(), file.getSize())
@@ -69,18 +64,17 @@ public class PostService {
 			throw new RuntimeException("Failed to upload file", e);
 		}
 
-		return "https://" + BUCKET_NAME + ".s3." + REGION + ".amazonaws.com/" + fileName;
+		return "https://" + BUCKET_NAME + ".s3." + REGION + ".amazonaws.com/" + storedFileName;
 	}
 
-	private String getFileName(MultipartFile file, String dirName) {
-		String fileName = dirName + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
-		return fileName;
+	private String getFileName(MultipartFile file) {
+		return "posts/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
 	}
 
 	@Transactional(readOnly = true)
 	public List<PostResponseDTO> getAllPosts() throws IOException {
 		return postRepository.findAll().stream()
-				.map(post -> toResponseDTO(post))
+				.map(this::toResponseDTO)
 				.collect(Collectors.toList());
 	}
 
@@ -108,7 +102,26 @@ public class PostService {
 		if (!postRepository.existsById(id)) {
 			throw new IllegalArgumentException("Post not found with id: " + id);
 		}
-		postRepository.deleteById(id);
+		Post post = postRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Post not found with id: " + id));
+
+		deleteFile(post.getStoredFileName());
+		postRepository.deleteById(post.getId());
+	}
+
+	@Transactional
+	private void deleteFile(String fileName) {
+		try {
+			DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+					.bucket(BUCKET_NAME)
+					.key(fileName)
+					.build();
+
+			s3Client.deleteObject(deleteRequest);
+
+		} catch (Exception e) {
+			throw new RuntimeException("File deletion failed", e);
+		}
 	}
 
 	private PostResponseDTO toResponseDTO(Post post) {
@@ -119,7 +132,7 @@ public class PostService {
 				.content(post.getContent())
 				.createdAt(post.getCreatedAt())
 				.updatedAt(post.getUpdatedAt())
-				.fileName(post.getFileName())
+				.originalFileName(post.getOriginalFileName())
 				.imageUrl(post.getImageUrl())
 				.build();
 

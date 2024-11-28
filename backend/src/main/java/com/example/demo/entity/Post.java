@@ -32,7 +32,10 @@ public class Post {
 	private String imageUrl;
 
 	@Column(nullable = true)
-	private String fileName;
+	private String originalFileName;
+
+	@Column(nullable = true)
+	private String storedFileName;
 
 	@CreationTimestamp
 	@Column(updatable = false)

@@ -14,7 +14,7 @@ public class PostResponseDTO {
 	private String title;
 	private String content;
 	private String imageUrl;
-	private String fileName;
+	private String originalFileName;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 }
