@@ -1,11 +1,22 @@
+import axios from "axios";
+import { useState, useEffect } from "react";
+
 function App() {
-  const API_KEY = import.meta.env.VITE_API_KEY;
-  const API_URL = import.meta.env.VITE_API_URL;
+  const vite_message = import.meta.env.VITE_MESSAGE;
+  const [spring_message, setSpringMessage] = useState("");
+  const url = "http://localhost:8080/";
+  useEffect(() => {
+    async function fetchMessage() {
+      const response = await axios.get(url);
+      setSpringMessage(response.data);
+    }
+    fetchMessage();
+  }, []);
+
   return (
     <>
-      <h1>Hello World</h1>
-      <p>{API_KEY}</p>
-      <p>{API_URL}</p>
+      <h1>{vite_message}</h1>
+      <h1>{spring_message}</h1>
     </>
   );
 }
