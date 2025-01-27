@@ -31,11 +31,14 @@ export default function PostForm({ fetchPosts }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData(); // 멀티파트 폼데이터 생성
+    const formData = new FormData(); // FormData 객체 생성
     formData.append("title", inputData.title);
     formData.append("content", inputData.content);
 
-    if (inputData.file) formData.append("file", inputData.file); // 이미지 파일이 있는 경우에 폼데이터에 추가
+    // 이미지 파일이 있는 경우에 폼데이터에 추가
+    if (inputData.file) {
+      formData.append("file", inputData.file);
+    }
 
     try {
       await postsApi.postPost(formData);

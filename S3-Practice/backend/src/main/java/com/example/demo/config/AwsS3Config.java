@@ -31,6 +31,7 @@ public class AwsS3Config {
 		);
 
 		return S3Client.builder()
+
 				.region(Region.of(REGION))
 				.credentialsProvider(credential)
 				.build();
