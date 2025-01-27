@@ -26,10 +26,10 @@ public class PostService {
     // S3에서 이미지를 삭제할 때 필요한 파일명
 		String storedFileName = extractStoredFileName(imageUrl);
 
-		Post post = buildPost(requestDto, imageUrl, storedFileName);
+		Post post = buildPostEntity(requestDto, imageUrl, storedFileName);
 		Post savedPost = postRepository.save(post);
 		
-		return buildResponseDTO(savedPost);
+		return buildResponseDto(savedPost);
 	}
 
 	@Transactional
@@ -52,7 +52,7 @@ public class PostService {
 	 * Post 엔티티를 생성한다
 	 * 이미지 관련 정보(URL, 원본 파일명, 저장된 파일명)를 포함한다
 	 */
-	private Post buildPost(PostRequestDto requestDto, String imageUrl, String storedFileName) {
+	private Post buildPostEntity(PostRequestDto requestDto, String imageUrl, String storedFileName) {
 		return Post.builder()
 				.title(requestDto.getTitle())
 				.content(requestDto.getContent())
@@ -62,7 +62,7 @@ public class PostService {
 				.build();
 	}
 
-	private PostResponseDto buildResponseDTO(Post post) {
+	private PostResponseDto buildResponseDto(Post post) {
 		return PostResponseDto.builder()
 				.id(post.getId())
 				.title(post.getTitle())
@@ -76,13 +76,13 @@ public class PostService {
 
 	public List<PostResponseDto> getAllPosts() {
 		return postRepository.findAll().stream()
-				.map(this::buildResponseDTO)
+				.map(this::buildResponseDto)
 				.collect(Collectors.toList());
 	}
 
 	public PostResponseDto getPostById(Long id) {
 		Post post = findPostById(id);
-		return buildResponseDTO(post);
+		return buildResponseDto(post);
 	}
 
 	private Post findPostById(Long id) {

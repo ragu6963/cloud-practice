@@ -28,12 +28,23 @@ public class Post {
 	@Column(nullable = false)
 	private String content;
 
+	/**
+	 * S3에 업로드된 이미지의 URL
+	 * 이미지 표시에 사용됨
+	 */
 	@Column(nullable = true)
 	private String imageUrl;
 
+	/**
+	 * 사용자가 업로드한 원본 이미지 파일명
+	 */
 	@Column(nullable = true)
 	private String originalFileName;
 
+	/**
+	 * S3에 저장된 이미지 파일명
+	 * UUID가 포함된 고유한 파일명으로 S3에서 파일 삭제 시 사용됨
+	 */
 	@Column(nullable = true)
 	private String storedFileName;
 
