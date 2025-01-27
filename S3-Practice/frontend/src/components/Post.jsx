@@ -1,4 +1,3 @@
-import React from "react";
 import styles from "./Post.module.css";
 import { useNavigate } from "react-router-dom";
 import postsApi from "../api/postsApi";
@@ -27,7 +26,8 @@ export default function Post({ post, isDetail }) {
       {isDetail && (
         <>
           <p className={styles.postContent}>{post.content}</p>
-          <img src={post.imageUrl} alt="" />
+          <img src={post.imageUrl} />
+          <p>{post.originalFileName}</p>
           <button onClick={onClick}>삭제</button>
         </>
       )}

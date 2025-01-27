@@ -12,12 +12,18 @@ import software.amazon.awssdk.services.s3.S3Client;
 @Configuration
 public class AwsS3Config {
 	@Value("${REGION}")
-	String REGION;
+	private String REGION;
 	@Value("${ACCESS_KEY}")
-	String ACCESS_KEY;
+	private String ACCESS_KEY;
 	@Value("${SECRET_KEY}")
-	String SECRET_KEY;
-
+	private String SECRET_KEY;
+  
+	/**
+	 * AWS S3 클라이언트 빈을 생성
+	 * S3 서비스에 접근할 수 있는 클라이언트를 구성
+	 *
+	 * @return AWS S3와 상호작용하기 위한 설정이 완료된 S3Client 객체
+	 */
 	@Bean
 	public S3Client s3Client() {
 		StaticCredentialsProvider credential = StaticCredentialsProvider.create(
@@ -29,6 +35,4 @@ public class AwsS3Config {
 				.credentialsProvider(credential)
 				.build();
 	}
-
-
 }

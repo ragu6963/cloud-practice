@@ -4,11 +4,8 @@ import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class PostRequestDTO {
+public class PostRequestDto {
 	private String title;
 	private String content;
 	private MultipartFile file;

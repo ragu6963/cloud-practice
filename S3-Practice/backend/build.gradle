@@ -28,8 +28,6 @@ dependencies {
     // lombok
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
-    testCompileOnly 'org.projectlombok:lombok:1.18.36'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
 
     // mysql
     implementation 'mysql:mysql-connector-java:8.0.33'
@@ -37,12 +35,9 @@ dependencies {
     // jpa
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    // aws
-    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
-    implementation 'software.amazon.awssdk:s3:2.20.12' // AWS SDK
+    // AWS SDK
+    implementation 'software.amazon.awssdk:s3:2.20.12'
 
-    // hot reload
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }
 tasks.named('test') {
     useJUnitPlatform()

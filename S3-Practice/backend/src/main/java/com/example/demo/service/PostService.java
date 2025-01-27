@@ -1,132 +1,69 @@
 package com.example.demo.service;
-
 import com.example.demo.domain.Post;
-import com.example.demo.dto.PostRequestDTO;
-import com.example.demo.dto.PostResponseDTO;
+import com.example.demo.dto.PostRequestDto;
+import com.example.demo.dto.PostResponseDto;
 import com.example.demo.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PostService {
 
 	private final PostRepository postRepository;
-	private final S3Client s3Client;
-
-	@Value("${BUCKET_NAME}")
-	String BUCKET_NAME;
-	@Value("${REGION}")
-	String REGION;
+	private final S3Service s3Service;
 
 	@Transactional
-	public PostResponseDTO createPost(PostRequestDTO requestDto) {
-		// S3에 이미지 업로드
-		String storedFileName = getFileName(requestDto.getFile());
-		String imageUrl = uploadToS3(requestDto.getFile(), storedFileName);
+	public PostResponseDto createPost(PostRequestDto requestDto) {
+		// S3에 이미지 파일을 업로드하고 접근 URL 생성
+		String imageUrl = s3Service.uploadFile(requestDto.getFile());
+		// 이미지 URL에서 저장된 파일명을 추출한다
+    // S3에서 이미지를 삭제할 때 필요한 파일명
+		String storedFileName = extractStoredFileName(imageUrl);
 
-		Post post = new Post();
-		post.setTitle(requestDto.getTitle());
-		post.setContent(requestDto.getContent());
-		post.setImageUrl(imageUrl);
-		post.setOriginalFileName(requestDto.getFile().getOriginalFilename());
-		post.setStoredFileName(storedFileName);
-
-		postRepository.save(post);
-
-		return toResponseDTO(post);
-	}
-
-	private String uploadToS3(MultipartFile file, String storedFileName) {
-
-		try {
-			s3Client.putObject(
-					PutObjectRequest.builder()
-							.bucket(BUCKET_NAME)
-							.key(storedFileName)
-							.contentType(file.getContentType())
-							.build(),
-					RequestBody.fromInputStream(file.getInputStream(), file.getSize())
-			);
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to upload file", e);
-		}
-
-		return "https://" + BUCKET_NAME + ".s3." + REGION + ".amazonaws.com/" + storedFileName;
-	}
-
-	private String getFileName(MultipartFile file) {
-		return "posts/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
-	}
-
-	@Transactional(readOnly = true)
-	public List<PostResponseDTO> getAllPosts() throws IOException {
-		return postRepository.findAll().stream()
-				.map(this::toResponseDTO)
-				.collect(Collectors.toList());
-	}
-
-	@Transactional(readOnly = true)
-	public PostResponseDTO getPostById(Long id) throws IOException {
-		Post post = postRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Post not found with id: " + id));
-
-		return toResponseDTO(post);
-	}
-
-	@Transactional
-	public PostResponseDTO updatePost(Long id, PostRequestDTO requestDto) throws IOException {
-		Post post = postRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Post not found with id: " + id));
-
-		post.setTitle(requestDto.getTitle());
-		post.setContent(requestDto.getContent());
-
-		return toResponseDTO(post);
+		Post post = buildPost(requestDto, imageUrl, storedFileName);
+		Post savedPost = postRepository.save(post);
+		
+		return buildResponseDTO(savedPost);
 	}
 
 	@Transactional
 	public void deletePost(Long id) {
-		if (!postRepository.existsById(id)) {
-			throw new IllegalArgumentException("Post not found with id: " + id);
-		}
-		Post post = postRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Post not found with id: " + id));
-
-		deleteFile(post.getStoredFileName());
-		postRepository.deleteById(post.getId());
+		Post post = findPostById(id);
+		// S3에서 이미지 파일을 삭제한다
+		s3Service.deleteFile(post.getStoredFileName());
+		postRepository.delete(post);
 	}
 
-	@Transactional
-	private void deleteFile(String fileName) {
-		try {
-			DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
-					.bucket(BUCKET_NAME)
-					.key(fileName)
-					.build();
-
-			s3Client.deleteObject(deleteRequest);
-
-		} catch (Exception e) {
-			throw new RuntimeException("File deletion failed", e);
-		}
+	/**
+	 * S3 이미지 URL에서 저장된 파일명을 추출한다
+	 * 예: https://bucket.s3.region.amazonaws.com/posts/uuid_filename.jpg -> posts/uuid_filename.jpg
+	 */
+	private String extractStoredFileName(String imageUrl) {
+		return imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
 	}
 
-	private PostResponseDTO toResponseDTO(Post post) {
+	/**
+	 * Post 엔티티를 생성한다
+	 * 이미지 관련 정보(URL, 원본 파일명, 저장된 파일명)를 포함한다
+	 */
+	private Post buildPost(PostRequestDto requestDto, String imageUrl, String storedFileName) {
+		return Post.builder()
+				.title(requestDto.getTitle())
+				.content(requestDto.getContent())
+				.imageUrl(imageUrl)
+				.originalFileName(requestDto.getFile().getOriginalFilename())
+				.storedFileName(storedFileName)
+				.build();
+	}
 
-		return PostResponseDTO.builder()
+	private PostResponseDto buildResponseDTO(Post post) {
+		return PostResponseDto.builder()
 				.id(post.getId())
 				.title(post.getTitle())
 				.content(post.getContent())
@@ -135,6 +72,21 @@ public class PostService {
 				.originalFileName(post.getOriginalFileName())
 				.imageUrl(post.getImageUrl())
 				.build();
+	}
 
+	public List<PostResponseDto> getAllPosts() {
+		return postRepository.findAll().stream()
+				.map(this::buildResponseDTO)
+				.collect(Collectors.toList());
+	}
+
+	public PostResponseDto getPostById(Long id) {
+		Post post = findPostById(id);
+		return buildResponseDTO(post);
+	}
+
+	private Post findPostById(Long id) {
+		return postRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다. ID: " + id));
 	}
 }
